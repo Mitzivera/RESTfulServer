@@ -1,0 +1,28 @@
+{
+    "name": "RESTful server ",
+    "version": "0.0.0",
+    "description": "Dynamic Web Server using Node JS",
+    "author": {
+        "name": "Mitzi Bustamante",
+        "email": "bust6340@stthomas.edu"
+    },
+    "contributors": [
+        {
+            "name": "Mitzi Bustamante",
+            "email": "bust6340@stthomas.edu"
+        },
+        {
+            "name": "",
+            "email": ""
+        }
+    ],
+    "main": "server.js",
+    "repository": {
+        "type": "git",
+        "url": ""
+    },
+    "dependencies": {
+        "express": "^4.17.1",
+        "sqlite3": "^4.1.0"
+    }
+}
