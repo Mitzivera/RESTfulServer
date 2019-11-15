@@ -20,6 +20,8 @@ var db = new sqlite3.Database(db_filename,sqlite3.OPEN_READONLY, (err) =>{
 
 app.use (express.static(public_dir));
 
-//
+
+console.log("Now listening on port" + port);
+var server = app.listen(port); 
 
 
