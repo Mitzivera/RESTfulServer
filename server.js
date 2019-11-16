@@ -41,7 +41,7 @@ app.get('/codes', (req, res) => {
                reports[code] = data[i]["incident_type"];
            }
            res.writeHead(200,{'Content-Type':'text/html'});
-           res.write(JSON.stringify(reports));
+           res.write(JSON.stringify(reports, null, 4));
            res.end();
        }
     });  
@@ -63,11 +63,70 @@ app.get('/neighborhoods',(req, res) => {
                reports[neighId] = data[i]["neighborhood_name"];
            }
            res.writeHead(200,{'Content-Type':'text/html'});
-           res.write(JSON.stringify(reports));
+           res.write(JSON.stringify(reports, null, 4));
            res.end();
        }
     });  
 });
+/*
+*
+case_number (TEXT): unique id from crime case
+date_time (DATETIME): date and time when incident took place
+code (INTEGER): crime incident type numeric code
+incident (TEXT): crime incident description (more specific than incident_type)
+police_grid (INTEGER): police grid number where incident occurred
+neighborhood_number (INTEGER): neighborhood id where incident occurred
+block (TEXT): approximate address where incident occurred
+I19245014": {
+    "date": "2019-10-30",
+    "time": "23:43:19",
+    "code": 700,
+    "incident": "Auto Theft",
+    "police_grid": 95,
+    "neighborhood_number": 4,
+    "block": "79X 6 ST E"
+  },
+*/
+app.get('/incidents',(req, res) => {
+    var case_number = "";
+    var code = "";
+    var incident = "";
+    var police_grid = "";
+    var neighborhood_number = "";
+    var block = "";
+    var date = "";
+    var time = "";
+    var reports= {};
+    db.all("SELECT * FROM Incidents", (err,data) => {
+       if(err)
+       {
+           console.log("Error accessing the tables");
+       }
+       else
+       {
+           for(let i=data.length-1; i>-1; i--)
+           {
+               let innerObj = {};
+                case_number = "I" + data[i]["case_number"];
+                let hold = data[i]["date_time"];
+                let pos = hold.indexOf("T");
+                date = hold.substring(0,pos);
+                innerObj["date"] = hold.substring(0,pos);
+                innerObj["time"] = hold.substring(pos+1);
+                innerObj["code"] = data[i]["code"];
+                innerObj["incident"] = data[i]["incident"];
+                innerObj["police_grid"] = data[i]["police_grid"];
+                innerObj["neighborhood_number"] = data[i]["neighborhood_number"];
+                innerObj["block"] = data[i]["block"];
+                reports[case_number] = innerObj;
+           }
+           res.writeHead(200,{'Content-Type':'text/html'});
+           res.write(JSON.stringify(reports, null, 4));
+           res.end();
+       }
+    });  
+});
+
 
 console.log('Now listening on port ' + port);
 app.listen(port);
