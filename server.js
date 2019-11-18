@@ -1,9 +1,10 @@
-var fs = require('fs')
-var path = require('path')
+var fs = require('fs');
+var path = require('path');
 
-var express = require('express')
-var sqlite3 = require('sqlite3')
-var bodyParser = require('body-parser')
+var express = require('express');
+var sqlite3 = require('sqlite3');
+var bodyParser = require('body-parser');
+var js2xmlparser = require("js2xmlparser");
 
 var port = 8000;
 
@@ -28,6 +29,16 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.get('/codes', (req, res) => {
     var code = "";
     var reports= {};
+    var commacode = "";
+    console.log("");
+    if(req.query.hasOwnProperty('format')){
+        res.write(js2xmlparser.parse("codes", reports));
+        console.log(js2xmlparser.parse("codes", reports)); // writes in xml format 
+    }
+    if(req.query.hasOwnProperty('codes=')){
+
+    }
+
     db.all("SELECT * FROM Codes", (err,data) => {
        if(err)
        {
@@ -40,12 +51,17 @@ app.get('/codes', (req, res) => {
                code = "c" + data[i]["code"];
                reports[code] = data[i]["incident_type"];
            }
-           res.writeHead(200,{'Content-Type':'text/html'});
-           res.write(JSON.stringify(reports, null, 4));
-           res.end();
+            res.writeHead(200,{'Content-Type':'text/html'});
+            res.write(JSON.stringify(reports, null, ' '));
+           //res.write(js2xmlparser.parse("codes", reports));
+           //console.log(js2xmlparser.parse("codes", reports)); // writes in xml format 
+          // console.log(JSON.stringify(reports, null, ' ')); // write in the correct format 
+             res.end();
        }
     });  
 });
+
+
 
 app.get('/neighborhoods',(req, res) => {
     var neighId = "";
@@ -64,6 +80,8 @@ app.get('/neighborhoods',(req, res) => {
            }
            res.writeHead(200,{'Content-Type':'text/html'});
            res.write(JSON.stringify(reports, null, 4));
+           //console.log(js2xmlparser.parse("codes", reports)); // writes in xml format 
+          // console.log(JSON.stringify(reports, null, ' ')); // write in the correct format
            res.end();
        }
     });  
@@ -97,7 +115,7 @@ app.get('/incidents',(req, res) => {
     var date = "";
     var time = "";
     var reports= {};
-    db.all("SELECT * FROM Incidents", (err,data) => {
+    db.all("SELECT * FROM Incidents ORDER BY date_time", (err,data) => {
        if(err)
        {
            console.log("Error accessing the tables");
@@ -125,6 +143,26 @@ app.get('/incidents',(req, res) => {
            res.end();
        }
     });  
+});
+
+app.put('/new-indidicent', (req,res) =>{
+    var case_number;
+    var data;
+    var time;
+    var code;
+    var incident;
+    var police_grid;
+    var neighborhood_number;
+    var block;
+
+    if(case_number == req.query.case_number){
+        res.status(500).send("Error: Case Number already exist");
+    }
+
+
+
+
+
 });
 
 
