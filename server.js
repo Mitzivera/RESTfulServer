@@ -48,22 +48,26 @@ app.get('/codes', (req, res) => {
                 res.end();
             }else if(req.query.hasOwnProperty('codes')){
                 console.log("inside this second method");
-                console.log(req.query.codes);
+               // console.log(req.query.codes);
                 commacode = req.query.codes;
+                console.log(commacode);
 
-                db.all("SELECT req.query.codes FROM Codes", (err,data) =>{
+
+                db.all("SELECT 110 FROM Codes", (err,data) =>{
                     if(err)
                     {
                         console.log("Error accessing the tables");
                     }else{
-                        for(let i=0; i< data.length; i++)
+                        
+                        for(let i=0; i< 2; i++)
                         {
                             code = "c" + data[i]["code"];
                             reports[code] = data[i]["incident_type"];
                         }
+                        
                     res.write(JSON.stringify(reports, null, ' '));
                     res.end(); 
-                    }
+                }
                 });
             }else{
                 console.log('inside the 3rd');
