@@ -42,13 +42,31 @@ app.get('/codes', (req, res) => {
            }
 
            if(req.query.hasOwnProperty('format')){
-            res.writeHead(200,{'Content-Type':'text/xml'});
-            res.write(js2xmlparser.parse("Codes", reports));
-            res.end();
-            }else if(req.query.hasOwnProperty(',')){
+                console.log('inside the first loop');
+                res.writeHead(200,{'Content-Type':'text/xml'});
+                res.write(js2xmlparser.parse("Codes", reports));
+                res.end();
+            }else if(req.query.hasOwnProperty('codes')){
+                console.log("inside this second method");
+                console.log(req.query.codes);
+                commacode = req.query.codes;
 
-
+                db.all("SELECT req.query.codes FROM Codes", (err,data) =>{
+                    if(err)
+                    {
+                        console.log("Error accessing the tables");
+                    }else{
+                        for(let i=0; i< data.length; i++)
+                        {
+                            code = "c" + data[i]["code"];
+                            reports[code] = data[i]["incident_type"];
+                        }
+                    res.write(JSON.stringify(reports, null, ' '));
+                    res.end(); 
+                    }
+                });
             }else{
+                console.log('inside the 3rd');
                 res.write(JSON.stringify(reports, null, ' '));
                 res.end(); 
             } 
