@@ -21,8 +21,6 @@ var db = new sqlite3.Database(db_filename, sqlite3.OPEN_READONLY, (err) => {
 });
 
 var reports;
-
-
 var app = express();
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -30,15 +28,6 @@ app.get('/codes', (req, res) => {
     var code = "";
     var reports= {};
     var commacode = "";
-    console.log("");
-    if(req.query.hasOwnProperty('format')){
-        res.write(js2xmlparser.parse("codes", reports));
-        console.log(js2xmlparser.parse("codes", reports)); // writes in xml format 
-    }
-    if(req.query.hasOwnProperty('codes=')){
-
-    }
-
     db.all("SELECT * FROM Codes", (err,data) => {
        if(err)
        {
@@ -51,12 +40,18 @@ app.get('/codes', (req, res) => {
                code = "c" + data[i]["code"];
                reports[code] = data[i]["incident_type"];
            }
-            res.writeHead(200,{'Content-Type':'text/html'});
-            res.write(JSON.stringify(reports, null, ' '));
-           //res.write(js2xmlparser.parse("codes", reports));
-           //console.log(js2xmlparser.parse("codes", reports)); // writes in xml format 
-          // console.log(JSON.stringify(reports, null, ' ')); // write in the correct format 
-             res.end();
+
+           if(req.query.hasOwnProperty('format')){
+            res.writeHead(200,{'Content-Type':'text/xml'});
+            res.write(js2xmlparser.parse("Codes", reports));
+            res.end();
+            }else if(req.query.hasOwnProperty(',')){
+
+
+            }else{
+                res.write(JSON.stringify(reports, null, ' '));
+                res.end(); 
+            } 
        }
     });  
 });
@@ -78,11 +73,18 @@ app.get('/neighborhoods',(req, res) => {
                neighId = "N" + data[i]["neighborhood_number"];
                reports[neighId] = data[i]["neighborhood_name"];
            }
-           res.writeHead(200,{'Content-Type':'text/html'});
+           if(req.query.hasOwnProperty('format')){
+            res.writeHead(200,{'Content-Type':'text/xml'});
+            res.write(js2xmlparser.parse("Neighborhoods", reports));
+            res.end();
+            }else {
+               // res.writeHead(200,{'Content-Type':'text/html'});
            res.write(JSON.stringify(reports, null, 4));
            //console.log(js2xmlparser.parse("codes", reports)); // writes in xml format 
           // console.log(JSON.stringify(reports, null, ' ')); // write in the correct format
            res.end();
+            }
+           
        }
     });  
 });
@@ -138,9 +140,17 @@ app.get('/incidents',(req, res) => {
                 innerObj["block"] = data[i]["block"];
                 reports[case_number] = innerObj;
            }
-           res.writeHead(200,{'Content-Type':'text/html'});
+           if(req.query.hasOwnProperty('format')){
+            res.writeHead(200,{'Content-Type':'text/xml'});
+            res.write(js2xmlparser.parse("Incidents", reports));
+            res.end();
+            }else{
+            //res.writeHead(200,{'Content-Type':'text/html'});
            res.write(JSON.stringify(reports, null, 4));
            res.end();
+            }
+           
+           
        }
     });  
 });
