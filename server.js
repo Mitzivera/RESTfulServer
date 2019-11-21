@@ -191,9 +191,11 @@ console.log(req.query);
                         break;
                     }
                 }
-                
+            
+                var count = 0;                
             for (let i = locEnd; i<=loc; i++)
                     {
+                            count++;
                             let innerObj = {};
                             case_number = "I" + data[i]["case_number"];
                             hold = data[i]["date_time"];
@@ -206,6 +208,10 @@ console.log(req.query);
                             innerObj["neighborhood_number"] = data[i]["neighborhood_number"];
                             innerObj["block"] = data[i]["block"];
                             reports[case_number] = innerObj;
+                            if(count === 10000)
+                            {
+                                break;
+                            }
                     }   
             
 
@@ -224,18 +230,13 @@ console.log(req.query);
                         
                         if(commaStartDate == date)
                         {
-                            loc++;
+                            loc=i;
                         }
                     
                 }
-                    var startPoint = 0;
-                    if(loc-startPoint > 10000)
-                    {
-                        startPoint = loc-10000;
-                    }
-                
-                    console.log('start only ' + loc);
-                    for (let i = endPoint; i < loc + 1; i++)
+                    loc = Math.min(loc,10000);
+                    
+                    for (let i = 0; i < loc + 1; i++)
                     {
                             let innerObj = {};
                             case_number = "I" + data[i]["case_number"];
@@ -249,7 +250,8 @@ console.log(req.query);
                             innerObj["neighborhood_number"] = data[i]["neighborhood_number"];
                             innerObj["block"] = data[i]["block"];
                             reports[case_number] = innerObj;
-                    }     
+                    }  
+                   // console.log(reports.size);   
                      
                 }
             else if (req.query.hasOwnProperty('end_date')){
@@ -273,9 +275,9 @@ console.log(req.query);
                     var endPoint = data.length;
                     if(endPoint-loc > 10000)
                     {
-                        endPoint = loc+10000
+                        endPoint = loc+10000;
                     }
-                    
+                 
                     for (let i = loc; i<endPoint; i++)
                     {
                             let innerObj = {};
@@ -305,13 +307,14 @@ console.log(req.query);
                     arrayofCodes = commaCode.split(",");
                 }
                
-                
+                var count = 0;
                 for (let j = 0; j<arrayofCodes.length; j++){
                     for(let i=0; i< data.length; i++)
                     {
                         
                         if(Number(arrayofCodes[j]) === Number(data[i]["code"]))
                         {
+                            count=count+1;
                             let innerObj = {};
                             case_number = "I" + data[i]["case_number"];
                             let hold = data[i]["date_time"];
@@ -325,8 +328,17 @@ console.log(req.query);
                             innerObj["neighborhood_number"] = data[i]["neighborhood_number"];
                             innerObj["block"] = data[i]["block"];
                             reports[case_number] = innerObj;
+                           
+                        }
+                        if(count === 10000)
+                        {
+                            break;
                         }
                      }
+                     if(count === 10000)
+                        {
+                            break;
+                        }
                 }
             }
             if (req.query.hasOwnProperty('grid')){
@@ -340,7 +352,7 @@ console.log(req.query);
                 {
                     arrayofGrids = commaGrid.split(",");
                 }
-               
+               var count = 0;
                 
                 for (let j = 0; j<arrayofGrids.length; j++){
                     for(let i=0; i< data.length; i++)
@@ -348,6 +360,7 @@ console.log(req.query);
                         
                         if(Number(arrayofGrids[j]) === Number(data[i]["police_grid"]))
                         {
+                            count = count + 1;
                             let innerObj = {};
                             case_number = "I" + data[i]["case_number"];
                             let hold = data[i]["date_time"];
@@ -362,7 +375,15 @@ console.log(req.query);
                             innerObj["block"] = data[i]["block"];
                             reports[case_number] = innerObj;
                         }
+                        if(count === 10000)
+                        {
+                            break;
+                        }
                      }
+                     if(count === 10000)
+                        {
+                            break;
+                        }
                 }
 
             }
@@ -377,11 +398,12 @@ console.log(req.query);
                 {
                     arrayofNeighborhood = commaNeighbor.split(',');
                 }
-                console.log(commaNeighbor);
+                var count  = 0;
                 for (let j =0; j<arrayofNeighborhood.length; j++){
                     for(let i=0; i< data.length; i++){
                         if(Number(arrayofNeighborhood[j]) === Number(data[i]["neighborhood_number"]))
                         {
+                            count = count + 1;
                             let innerObj = {};
                             case_number = "I" + data[i]["case_number"];
                             let hold = data[i]["date_time"];
@@ -396,8 +418,15 @@ console.log(req.query);
                             innerObj["block"] = data[i]["block"];
                             reports[case_number] = innerObj;
                         }
-    
-                    }
+                        if(count === 10000)
+                        {
+                            break;
+                        }
+                     }
+                     if(count === 10000)
+                        {
+                            break;
+                        }
                 }
     
             }
@@ -421,7 +450,7 @@ console.log(req.query);
                             reports[case_number] = innerObj;
                 }
             } 
-           if(!req.query.hasOwnProperty('limit') && !req.query.hasOwnProperty('id') && !req.query.hasOwnProperty('grid') && !req.query.hasOwnProperty('codes') && !req.query.hasOwnProperty('end_date') && req.query.hasOwnProperty('start_date'))
+           if(!req.query.hasOwnProperty('limit') && !req.query.hasOwnProperty('id') && !req.query.hasOwnProperty('grid') && !req.query.hasOwnProperty('codes') && !req.query.hasOwnProperty('end_date') && !req.query.hasOwnProperty('start_date'))
            {
             for(let i=0; i<10000; i++)
             {
