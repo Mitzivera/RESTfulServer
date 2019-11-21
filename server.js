@@ -49,15 +49,18 @@ app.get('/codes', (req, res) => {
                 commaCode = req.query.codes;
                 arrayofCodes = commaCode.split(",");
                 console.log(arrayofCodes);
-                for (let j = 0; j<arrayofCodes.length; j++){
-                    db.all("SELECT * FROM Codes WHERE codes=?", [arrayofCodes], (err,data) =>{
+                for (let i = 0; i<arrayofCodes.length; i++){
+                    db.all("SELECT * FROM Codes WHERE code=?", [arrayofCodes[i]], (err,data) =>{
                         if (err){
-                            console.log("Error accessing the tables");
+                            console.log("Error accessing the tables", err);
                         }else{
-                            code = "c" + data[j]["code"];
-                            reports[code] = data[j]["incident_type"];
-                        }
-                        res.write(JSON.stringify(reports, null, ' '));
+                            for(let i=0; i< arrayofCodes.length; i++)
+                            {
+                                code = "c" + data["code"];
+                                reports[code] = data["incident_type"];
+                            }
+                            res.write(JSON.stringify(reports, null, ' '));
+                        }  
                     });
                 }
             }else{
@@ -208,14 +211,14 @@ app.get('/incidents',(req, res) => {
             }else if(req.query.hasOwnProperty('limit')){
                 var thelimit = req.query.limit;
                 for (let i = 0; i<thelimit; i++){
-                    console.log(req.query.code);
+                    console.log(req.query.limit);
                 db.all("SELECT * FROM Codes ", (err,data) =>{
                     if (err){
                         console.log("Error accessing the tables");
                     }else{
-                        
+                        res.write(js2xmlparser.parse("Incidents", reports));
                     }
-                    res.write(js2xmlparser.parse("Incidents", reports));
+                   // res.write(js2xmlparser.parse("Incidents", reports));
                 });
 
                 }
@@ -233,7 +236,7 @@ app.get('/incidents',(req, res) => {
 });
 
 app.put('/new-incident', (req,res) =>{
-    
+   
 
     var innerObj = {
         date : req.body.date,
@@ -243,15 +246,17 @@ app.put('/new-incident', (req,res) =>{
         police_grid: req.body.police_grid, 
         neighborhood_number: req.body.neighborhood_number,
         block:req.body.block 
-
     }
+
     var incident = {};
     var case_number = "I" + req.body.case_number;
     incident[case_number] = innerObj;
+    
     db.all("SELECT * FROM Incidents WHERE case_number=?", [req.body.case_number], (err,data) => {
+       console.log("[["+req.body.case_number+"]]");
         if(err)
         {
-            db.run("INSERT INTO Incidents (case_number, date , time , code, incident, police_grid, neighborhood_number, block) VALUES(req.body.case_number, req.body.date, req.body.time,req.body.code, req.body.incident, req.body.police_grid,req.body.neighborhood_number,  req.body.block)", (err,data)=>{
+            db.run("INSERT INTO Incidents (case_number, date_time , code, incident, police_grid, neighborhood_number, block) VALUES(req.body.case_number, req.body.date_time, req.body.code, req.body.incident, req.body.police_grid,req.body.neighborhood_number, req.body.block)", (err,data)=>{
                 if(err)
                 {
                     console.log("Error entering incident");
@@ -259,6 +264,7 @@ app.put('/new-incident', (req,res) =>{
                 else
                 {
                     res.status(200).send('Success!');
+                    console.log("success");
                 }
             });
         }
@@ -266,6 +272,7 @@ app.put('/new-incident', (req,res) =>{
         {
             if(req.body.case_number === data["case_number"])
             {
+                
                 res.status(500).send('Error: incident already exists');
             }
         }
