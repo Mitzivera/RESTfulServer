@@ -171,22 +171,29 @@ app.put('/new-incident', (req,res) =>{
     db.all("SELECT * FROM Incidents WHERE case_number=?", [req.body.case_number], (err,data) => {
         if(err)
         {
-            db.run("INSERT INTO Incidents (case_number, date , time , code, incident, police_grid, neighborhood_number, block) VALUES(req.body.case_number, req.body.date, req.body.time,req.body.code, req.body.incident, req.body.police_grid,req.body.neighborhood_number,  req.body.block)", (err,data)=>{
-                if(err)
-                {
-                    console.log("Error entering incident");
-                }
-                else
-                {
-                    res.status(200).send('Success!');
-                }
-            });
+            console.log("The value doesn't ")
         }
         else
-        {
-            if(req.body.case_number === data["case_number"])
+        { 
+            if(data.length == 0)
             {
-                res.status(500).send('Error: incident already exists');
+                db.run("INSERT INTO Incidents (case_number, date_time , code, incident, police_grid, neighborhood_number, block) VALUES(req.body.case_number, req.body.date_time,req.body.code, req.body.incident, req.body.police_grid,req.body.neighborhood_number,  req.body.block)", (err,data)=>{
+                    if(err)
+                    {
+                        console.log("Error entering incident");
+                    }
+                    else
+                    {
+                        res.status(200).send('Success!');
+                    }
+                });
+            }
+            else
+            {
+                if(req.body.case_number === data["case_number"])
+                {
+                    res.status(500).send('Error: incident already exists');
+                }
             }
         }
     });
