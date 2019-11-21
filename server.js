@@ -27,7 +27,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.get('/codes', (req, res) => {
     var code = "";
     var reports= {};
-    var commacode = "";
+    var commaCode = "";
     db.all("SELECT * FROM Codes", (err,data) => {
        if(err)
        {
@@ -49,26 +49,24 @@ app.get('/codes', (req, res) => {
             }else if(req.query.hasOwnProperty('codes')){
                 console.log("inside this second method");
                // console.log(req.query.codes);
-                commacode = req.query.codes;
-                console.log(commacode);
-
-
-                db.all("SELECT 110 FROM Codes", (err,data) =>{
-                    if(err)
-                    {
-                        console.log("Error accessing the tables");
-                    }else{
-                        
-                        for(let i=0; i< 2; i++)
-                        {
+                commaCode = req.query.codes;
+                //console.log(commacode);
+                var arrayofCodes = commaCode.split(",");
+                console.log(arrayofCodes);
+                for (let i = 0; i<arrayofCodes.length; i++){
+                    console.log('inside the loop');
+                    db.all("SELECT * FROM Codes WHERE codes=?"[i], (err, data) =>{
+                        if (err){
+                            console.log("Error accessing the tables");
+                        }else{
                             code = "c" + data[i]["code"];
                             reports[code] = data[i]["incident_type"];
                         }
-                        
-                    res.write(JSON.stringify(reports, null, ' '));
-                    res.end(); 
+                        res.write(JSON.stringify(reports, null, ' '));
+                        //res.end(); 
+                    });
+
                 }
-                });
             }else{
                 console.log('inside the 3rd');
                 res.write(JSON.stringify(reports, null, ' '));
@@ -83,6 +81,7 @@ app.get('/codes', (req, res) => {
 app.get('/neighborhoods',(req, res) => {
     var neighId = "";
     var reports= {};
+    var commaNeighbor;
     db.all("SELECT * FROM Neighborhoods", (err,data) => {
        if(err)
        {
@@ -99,14 +98,27 @@ app.get('/neighborhoods',(req, res) => {
             res.writeHead(200,{'Content-Type':'text/xml'});
             res.write(js2xmlparser.parse("Neighborhoods", reports));
             res.end();
+            }else if (req.query.hasOwnProperty('id')){
+                commaNeighbor = req.query.id;
+                var arrayofNeighborhood = commaNeighbor.split(',');
+                console.log(arrayofNeighborhood);
+                for (let i =0; i<arrayofNeighborhood; i++){
+                    db.all("SELECT * FROM Neighborhoods WHERE id=?", (err,data) => {
+                        if(err){
+                            console.log("Error accessing the tables");
+                        }else{
+                            for(let i=0; i< data.length; i++){
+                                neighId = "N" + data[i]["neighborhood_number"];
+                                reports[neighId] = data[i]["neighborhood_name"];
+                            }
+                            res.write(JSON.stringify(reports, null, 4));
+                        }
+                    });
+                }
             }else {
-               // res.writeHead(200,{'Content-Type':'text/html'});
            res.write(JSON.stringify(reports, null, 4));
-           //console.log(js2xmlparser.parse("codes", reports)); // writes in xml format 
-          // console.log(JSON.stringify(reports, null, ' ')); // write in the correct format
            res.end();
-            }
-           
+            } 
        }
     });  
 });
@@ -166,7 +178,19 @@ app.get('/incidents',(req, res) => {
             res.writeHead(200,{'Content-Type':'text/xml'});
             res.write(js2xmlparser.parse("Incidents", reports));
             res.end();
-            }else{
+            }else if(req.query.hasOwnProperty('start_date')){
+
+            }else if (req.query.hasOwnProperty('end_date')){
+
+            }else if (req.query.hasOwnProperty('code')){
+
+            }else if (req.query.hasOwnProperty('grid')){
+
+            }else if (req.query.hasOwnProperty('id')){
+
+            }else if(req.query.hasOwnProperty('limit')){
+
+            } else{
             //res.writeHead(200,{'Content-Type':'text/html'});
            res.write(JSON.stringify(reports, null, 4));
            res.end();
