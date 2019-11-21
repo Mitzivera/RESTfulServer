@@ -227,6 +227,8 @@ app.get('/incidents',(req, res) => {
                     {
                             let innerObj = {};
                             case_number = "I" + data[i]["case_number"];
+                            let hold = data[i]["date_time"];
+                            let pos = hold.indexOf("T");
                             innerObj["date"] = hold.substring(0,pos);
                             innerObj["time"] = hold.substring(pos+1, hold.length);
                             innerObj["code"] = data[i]["code"];
