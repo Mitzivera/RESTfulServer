@@ -20,7 +20,7 @@ var db = new sqlite3.Database(db_filename, sqlite3.OPEN_READONLY, (err) => {
     }
 });
 
-var reports;
+
 var app = express();
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -110,34 +110,9 @@ app.get('/neighborhoods',(req, res) => {
        }
     });  
 });
-/*
-*
-case_number (TEXT): unique id from crime case
-date_time (DATETIME): date and time when incident took place
-code (INTEGER): crime incident type numeric code
-incident (TEXT): crime incident description (more specific than incident_type)
-police_grid (INTEGER): police grid number where incident occurred
-neighborhood_number (INTEGER): neighborhood id where incident occurred
-block (TEXT): approximate address where incident occurred
-I19245014": {
-    "date": "2019-10-30",
-    "time": "23:43:19",
-    "code": 700,
-    "incident": "Auto Theft",
-    "police_grid": 95,
-    "neighborhood_number": 4,
-    "block": "79X 6 ST E"
-  },
-*/
+
 app.get('/incidents',(req, res) => {
     var case_number = "";
-    var code = "";
-    var incident = "";
-    var police_grid = "";
-    var neighborhood_number = "";
-    var block = "";
-    var date = "";
-    var time = "";
     var reports= {};
     db.all("SELECT * FROM Incidents ORDER BY date_time", (err,data) => {
        if(err)
@@ -177,24 +152,45 @@ app.get('/incidents',(req, res) => {
     });  
 });
 
-app.put('/new-indidicent', (req,res) =>{
-    var case_number;
-    var data;
-    var time;
-    var code;
-    var incident;
-    var police_grid;
-    var neighborhood_number;
-    var block;
+app.put('/new-incident', (req,res) =>{
+    
 
-    if(case_number == req.query.case_number){
-        res.status(500).send("Error: Case Number already exist");
+    var innerObj = {
+        date : req.body.date,
+        time : req.body.time,
+        code : req.body.code,
+        incident : req.body.incident,
+        police_grid: req.body.police_grid, 
+        neighborhood_number: req.body.neighborhood_number,
+        block:req.body.block 
+
     }
-
-
-
-
-
+    var incident = {};
+    var case_number = "I" + req.body.case_number;
+    incident[case_number] = innerObj;
+    db.all("SELECT * FROM Incidents WHERE case_number=?", [req.body.case_number], (err,data) => {
+        if(err)
+        {
+            db.run("INSERT INTO Incidents (case_number, date , time , code, incident, police_grid, neighborhood_number, block) VALUES(req.body.case_number, req.body.date, req.body.time,req.body.code, req.body.incident, req.body.police_grid,req.body.neighborhood_number,  req.body.block)", (err,data)=>{
+                if(err)
+                {
+                    console.log("Error entering incident");
+                }
+                else
+                {
+                    res.status(200).send('Success!');
+                }
+            });
+        }
+        else
+        {
+            if(req.body.case_number === data["case_number"])
+            {
+                res.status(500).send('Error: incident already exists');
+            }
+        }
+    });
+    
 });
 
 
