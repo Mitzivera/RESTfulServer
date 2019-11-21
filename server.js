@@ -153,56 +153,156 @@ app.get('/incidents',(req, res) => {
     var arrayofNeighborhood;
     var arrayofCodes;
     var arrayofGrids;
-    db.all("SELECT * FROM Incidents ORDER BY date_time ASC", (err,data) => {
+    var arrayOfStartDates;
+    var arrayOfEndDates;
+
+    db.all("SELECT * FROM Incidents ORDER BY date_time DESC", (err,data) => {
        if(err){
            console.log("Error accessing the tables");
        }else {
-           for(let i=data.length-1; i>-1; i--)
+           if(req.query.hasOwnProperty('end_date') && req.query.hasOwnProperty('start_date'))
            {
-               let innerObj = {};
-                case_number = "I" + data[i]["case_number"];
-                let hold = data[i]["date_time"];
-                let pos = hold.indexOf("T");
-                date = hold.substring(0,pos);
-                innerObj["date"] = hold.substring(0,pos);
-                innerObj["time"] = hold.substring(pos+1, hold.length);
-                innerObj["code"] = data[i]["code"];
-                innerObj["incident"] = data[i]["incident"];
-                innerObj["police_grid"] = data[i]["police_grid"];
-                innerObj["neighborhood_number"] = data[i]["neighborhood_number"];
-                innerObj["block"] = data[i]["block"];
-                reports[case_number] = innerObj;
+            var commaStartDate = req.query.start_date;
+            var commaEndDate = req.query.end_date;
+            let pos = commaStartDate.indexOf(",");
+                if(pos < 0)
+                {
+                    arrayOfStartDates = [commaStartDate];
+                }
+                else
+                {
+                    arrayOfStartDates = commaStartDate.split(",");
+                }
+                pos = commaEndDate.indexOf(",");
+                if(pos < 0)
+                {
+                    arrayOfEndDates = [commaEndDate];
+                }
+                else
+                {
+                    arrayOfEndDates = commaEndDate.split(",");
+                }
+               let loc = 0;
+               for (let j = 0; j<arrayOfStartDates.length; j++){
+                for(let i=0; i< data.length; i++)
+                {
+                    let hold = data[i]["date_time"];
+                    let pos = hold.indexOf("T");
+                    date = hold.substring(0,pos);
+                    if((arrayOfStartDates[j]) === (data[i]["date"]))
+                    {
+                        loc=i;
+                    }
+                }
+            }
+            let locEnd = 0;
+            for (let j = 0; j<arrayOfEndDates.length; j++){
+                for(let i=0; i< data.length; i++)
+                {
+                    let hold = data[i]["date_time"];
+                    let pos = hold.indexOf("T");
+                    date = hold.substring(0,pos);
+                    if((arrayOfEndDates[j]) === (data[i]["date"]))
+                    {
+                        locEnd=i;
+                    }
+                }
+            }
+            for (let i = locEnd; i<loc; i++)
+                    {
+                            let innerObj = {};
+                            case_number = "I" + data[i]["case_number"];
+                            innerObj["date"] = hold.substring(0,pos);
+                            innerObj["time"] = hold.substring(pos+1, hold.length);
+                            innerObj["code"] = data[i]["code"];
+                            innerObj["incident"] = data[i]["incident"];
+                            innerObj["police_grid"] = data[i]["police_grid"];
+                            innerObj["neighborhood_number"] = data[i]["neighborhood_number"];
+                            innerObj["block"] = data[i]["block"];
+                            reports[case_number] = innerObj;
+                    }   
+            
+
            }
-          
-             if(req.query.hasOwnProperty('start_date')){
-                console.log(req.query.start_date);
-
-                db.all("SELECT * FROM Codes WHERE codes=?", [req.query.start_date], (err,data) =>{
-                    if (err){
-                        console.log("Error accessing the tables");
-                    }else{
-                        code = "c" + data[j]["code"];
-                        reports[code] = data[j]["incident_type"];
-                    }
-                   
-                });
+            else if(req.query.hasOwnProperty('start_date')){
+                var commaStartDate = req.query.start_date;
+                let pos = commaStartDate.indexOf(",");
+                if(pos < 0)
+                {
+                    arrayOfStartDates = [commaStartDate];
+                }
+                else
+                {
+                    arrayOfStartDates = commaStartDate.split(",");
+                }
+               let loc = 0;
                 
-
-
-            }
-             if (req.query.hasOwnProperty('end_date')){
-                console.log(req.query.end_date);
-                db.all("SELECT * FROM Codes WHERE codes=?", [req.query.end_date], (err,data) =>{
-                    if (err){
-                        console.log("Error accessing the tables");
-                    }else{
-                        code = "c" + data[j]["code"];
-                        reports[code] = data[j]["incident_type"];
+                for (let j = 0; j<arrayOfStartDates.length; j++){
+                    for(let i=0; i< data.length; i++)
+                    {
+                        let hold = data[i]["date_time"];
+                        let pos = hold.indexOf("T");
+                        date = hold.substring(0,pos);
+                        if((arrayOfStartDates[j]) === (data[i]["date"]))
+                        {
+                            loc=i;
+                        }
                     }
-                  
-                });
-
-            }
+                }
+                    for (let i = 0; i>loc; i++)
+                    {
+                            let innerObj = {};
+                            case_number = "I" + data[i]["case_number"];
+                            innerObj["date"] = hold.substring(0,pos);
+                            innerObj["time"] = hold.substring(pos+1, hold.length);
+                            innerObj["code"] = data[i]["code"];
+                            innerObj["incident"] = data[i]["incident"];
+                            innerObj["police_grid"] = data[i]["police_grid"];
+                            innerObj["neighborhood_number"] = data[i]["neighborhood_number"];
+                            innerObj["block"] = data[i]["block"];
+                            reports[case_number] = innerObj;
+                    }     
+                     
+                }
+            else if (req.query.hasOwnProperty('end_date')){
+                var commaEndDate = req.query.end_date;
+                let pos = commaEndDate.indexOf(",");
+                if(pos < 0)
+                {
+                    arrayOfEndDates = [commaEndDate];
+                }
+                else
+                {
+                    arrayOfEndDates = commaEndDate.split(",");
+                }
+               let loc = 0;
+                
+                for (let j = 0; j<arrayOfEndDates.length; j++){
+                    for(let i=0; i< data.length; i++)
+                    {
+                        let hold = data[i]["date_time"];
+                        let pos = hold.indexOf("T");
+                        date = hold.substring(0,pos);
+                        if((arrayOfEndDates[j]) === (data[i]["date"]))
+                        {
+                            loc=i;
+                        }
+                    }
+                }
+                    for (let i = loc; i<data.length; i++)
+                    {
+                            let innerObj = {};
+                            case_number = "I" + data[i]["case_number"];
+                            innerObj["date"] = hold.substring(0,pos);
+                            innerObj["time"] = hold.substring(pos+1, hold.length);
+                            innerObj["code"] = data[i]["code"];
+                            innerObj["incident"] = data[i]["incident"];
+                            innerObj["police_grid"] = data[i]["police_grid"];
+                            innerObj["neighborhood_number"] = data[i]["neighborhood_number"];
+                            innerObj["block"] = data[i]["block"];
+                            reports[case_number] = innerObj;
+                    }       
+                }
             if(req.query.hasOwnProperty('codes')){
 
                 var commaCode = req.query.codes;
@@ -217,11 +317,11 @@ app.get('/incidents',(req, res) => {
                 }
                
                 
-                for (let i = 0; i<arrayofCodes.length; i++){
-                    for(let j=0; j< data.length; j++)
+                for (let j = 0; j<arrayofCodes.length; j++){
+                    for(let i=0; i< data.length; i++)
                     {
                         
-                        if(Number(arrayofCodes[i]) === Number(data[j]["code"]))
+                        if(Number(arrayofCodes[j]) === Number(data[i]["code"]))
                         {
                             let innerObj = {};
                             case_number = "I" + data[i]["case_number"];
@@ -236,7 +336,6 @@ app.get('/incidents',(req, res) => {
                             innerObj["neighborhood_number"] = data[i]["neighborhood_number"];
                             innerObj["block"] = data[i]["block"];
                             reports[case_number] = innerObj;
-                            break;
                         }
                      }
                 }
@@ -258,7 +357,7 @@ app.get('/incidents',(req, res) => {
                     for(let i=0; i< data.length; i++)
                     {
                         
-                        if(Number(arrayofGrids[j]) === Number(data[i]["grid"]))
+                        if(Number(arrayofGrids[j]) === Number(data[i]["police_grid"]))
                         {
                             let innerObj = {};
                             case_number = "I" + data[i]["case_number"];
@@ -273,7 +372,6 @@ app.get('/incidents',(req, res) => {
                             innerObj["neighborhood_number"] = data[i]["neighborhood_number"];
                             innerObj["block"] = data[i]["block"];
                             reports[case_number] = innerObj;
-                            break;
                         }
                      }
                 }
@@ -290,7 +388,7 @@ app.get('/incidents',(req, res) => {
                 {
                     arrayofNeighborhood = commaNeighbor.split(',');
                 }
-    
+                console.log(commaNeighbor);
                 for (let j =0; j<arrayofNeighborhood.length; j++){
                     for(let i=0; i< data.length; i++){
                         if(Number(arrayofNeighborhood[j]) === Number(data[i]["neighborhood_number"]))
@@ -308,7 +406,6 @@ app.get('/incidents',(req, res) => {
                             innerObj["neighborhood_number"] = data[i]["neighborhood_number"];
                             innerObj["block"] = data[i]["block"];
                             reports[case_number] = innerObj;
-                            break;
                         }
     
                     }
@@ -334,10 +431,26 @@ app.get('/incidents',(req, res) => {
                             innerObj["block"] = data[i]["block"];
                             reports[case_number] = innerObj;
                 }
-                
-                
-
             } 
+           if(!req.query.hasOwnProperty('limit') && !req.query.hasOwnProperty('id') && !req.query.hasOwnProperty('grid') && !req.query.hasOwnProperty('codes') && !req.query.hasOwnProperty('end_date') && req.query.hasOwnProperty('start_date'))
+           {
+            for(let i=0; i<10000; i++)
+            {
+                let innerObj = {};
+                 case_number = "I" + data[i]["case_number"];
+                 let hold = data[i]["date_time"];
+                 let pos = hold.indexOf("T"); 
+                 date = hold.substring(0,pos);
+                 innerObj["date"] = hold.substring(0,pos);
+                 innerObj["time"] = hold.substring(pos+1, hold.length);
+                 innerObj["code"] = data[i]["code"];
+                 innerObj["incident"] = data[i]["incident"];
+                 innerObj["police_grid"] = data[i]["police_grid"];
+                 innerObj["neighborhood_number"] = data[i]["neighborhood_number"];
+                 innerObj["block"] = data[i]["block"];
+                 reports[case_number] = innerObj;
+            }
+           }
             if(req.query.hasOwnProperty('format')){
                 res.writeHead(200,{'Content-Type':'text/xml'});
                 res.write(js2xmlparser.parse("Incidents", reports));
