@@ -235,7 +235,7 @@ console.log(req.query);
                     }
                 
                     console.log('start only ' + loc);
-                    for (let i = 10000; i <= loc; i++)
+                    for (let i = endPoint; i <= loc; i++)
                     {
                             let innerObj = {};
                             case_number = "I" + data[i]["case_number"];
