@@ -7,8 +7,6 @@ var bodyParser = require('body-parser');
 var js2xmlparser = require("js2xmlparser");
 
 var port = 8000;
-
-//var user_file = path.join(__dirname, 'users.json');
 var db_filename = path.join(__dirname, 'db', 'stpaul_crime.sqlite3');
 
 var db = new sqlite3.Database(db_filename, sqlite3.OPEN_READONLY, (err) => {
@@ -27,14 +25,12 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.get('/codes', (req, res) => {
     var code = "";
     var reports= {};
-    var commacode = "";
+    var commaCode = "";
+    var arrayofCodes;
     db.all("SELECT * FROM Codes", (err,data) => {
-       if(err)
-       {
+       if(err){
            console.log("Error accessing the tables");
-       }
-       else
-       {
+       }else{
            for(let i=0; i< data.length; i++)
            {
                code = "c" + data[i]["code"];
@@ -42,33 +38,28 @@ app.get('/codes', (req, res) => {
            }
 
            if(req.query.hasOwnProperty('format')){
-                console.log('inside the first loop');
+
                 res.writeHead(200,{'Content-Type':'text/xml'});
                 res.write(js2xmlparser.parse("Codes", reports));
                 res.end();
+
             }else if(req.query.hasOwnProperty('codes')){
+
                 console.log("inside this second method");
-               // console.log(req.query.codes);
-                commacode = req.query.codes;
-                console.log(commacode);
-
-
-                db.all("SELECT 110 FROM Codes", (err,data) =>{
-                    if(err)
-                    {
-                        console.log("Error accessing the tables");
-                    }else{
-                        
-                        for(let i=0; i< 2; i++)
-                        {
-                            code = "c" + data[i]["code"];
-                            reports[code] = data[i]["incident_type"];
+                commaCode = req.query.codes;
+                arrayofCodes = commaCode.split(",");
+                console.log(arrayofCodes);
+                for (let j = 0; j<arrayofCodes.length; j++){
+                    db.all("SELECT * FROM Codes WHERE codes=?", [arrayofCodes], (err,data) =>{
+                        if (err){
+                            console.log("Error accessing the tables");
+                        }else{
+                            code = "c" + data[j]["code"];
+                            reports[code] = data[j]["incident_type"];
                         }
-                        
-                    res.write(JSON.stringify(reports, null, ' '));
-                    res.end(); 
+                        res.write(JSON.stringify(reports, null, ' '));
+                    });
                 }
-                });
             }else{
                 console.log('inside the 3rd');
                 res.write(JSON.stringify(reports, null, ' '));
@@ -83,13 +74,12 @@ app.get('/codes', (req, res) => {
 app.get('/neighborhoods',(req, res) => {
     var neighId = "";
     var reports= {};
+    var commaNeighbor;
+    var arrayofNeighborhood;
     db.all("SELECT * FROM Neighborhoods", (err,data) => {
-       if(err)
-       {
+       if(err){
            console.log("Error accessing the tables");
-       }
-       else
-       {
+       }else{
            for(let i=0; i< data.length; i++)
            {
                neighId = "N" + data[i]["neighborhood_number"];
@@ -99,14 +89,28 @@ app.get('/neighborhoods',(req, res) => {
             res.writeHead(200,{'Content-Type':'text/xml'});
             res.write(js2xmlparser.parse("Neighborhoods", reports));
             res.end();
+            }else if (req.query.hasOwnProperty('id')){
+                commaNeighbor = req.query.id;
+                arrayofNeighborhood = commaNeighbor.split(',');
+                console.log(arrayofNeighborhood);
+
+                for (let i =0; i<arrayofNeighborhood; i++){
+                    db.all("SELECT * FROM Neighborhoods WHERE id=?",[arrayofNeighborhood],(err,data) => {
+                        if(err){
+                            console.log("Error accessing the tables");
+                        }else{
+                            for(let i=0; i< data.length; i++){
+                                neighId = "N" + data[i]["neighborhood_number"];
+                                reports[neighId] = data[i]["neighborhood_name"];
+                            }
+                            res.write(JSON.stringify(reports, null, 4));
+                        }
+                    });
+                }
             }else {
-               // res.writeHead(200,{'Content-Type':'text/html'});
            res.write(JSON.stringify(reports, null, 4));
-           //console.log(js2xmlparser.parse("codes", reports)); // writes in xml format 
-          // console.log(JSON.stringify(reports, null, ' ')); // write in the correct format
            res.end();
-            }
-           
+            } 
        }
     });  
 });
@@ -115,12 +119,9 @@ app.get('/incidents',(req, res) => {
     var case_number = "";
     var reports= {};
     db.all("SELECT * FROM Incidents ORDER BY date_time", (err,data) => {
-       if(err)
-       {
+       if(err){
            console.log("Error accessing the tables");
-       }
-       else
-       {
+       }else {
            for(let i=data.length-1; i>-1; i--)
            {
                let innerObj = {};
@@ -138,12 +139,91 @@ app.get('/incidents',(req, res) => {
                 reports[case_number] = innerObj;
            }
            if(req.query.hasOwnProperty('format')){
-            res.writeHead(200,{'Content-Type':'text/xml'});
-            res.write(js2xmlparser.parse("Incidents", reports));
-            res.end();
-            }else{
+                res.writeHead(200,{'Content-Type':'text/xml'});
+                res.write(js2xmlparser.parse("Incidents", reports));
+                res.end();
+            }else if(req.query.hasOwnProperty('start_date')){
+                console.log(req.query.start_date);
+
+                db.all("SELECT * FROM Codes WHERE codes=?", [req.query.start_date], (err,data) =>{
+                    if (err){
+                        console.log("Error accessing the tables");
+                    }else{
+                        code = "c" + data[j]["code"];
+                        reports[code] = data[j]["incident_type"];
+                    }
+                   // res.write(JSON.stringify(reports, null, ' '));
+                });
+                
+
+
+            }else if (req.query.hasOwnProperty('end_date')){
+                console.log(req.query.end_date);
+                db.all("SELECT * FROM Codes WHERE codes=?", [req.query.end_date], (err,data) =>{
+                    if (err){
+                        console.log("Error accessing the tables");
+                    }else{
+                        code = "c" + data[j]["code"];
+                        reports[code] = data[j]["incident_type"];
+                    }
+                   // res.write(JSON.stringify(reports, null, ' '));
+                });
+
+            }else if (req.query.hasOwnProperty('code')){ 
+                console.log(req.query.code);
+                db.all("SELECT * FROM Codes WHERE codes=?", [req.query.code], (err,data) =>{
+                    if (err){
+                        console.log("Error accessing the tables");
+                    }else{
+                        code = "c" + data[j]["code"];
+                        reports[code] = data[j]["incident_type"];
+                    }
+                   // res.write(JSON.stringify(reports, null, ' '));
+                });
+
+            }else if (req.query.hasOwnProperty('grid')){
+                console.log(req.query.grid);
+                db.all("SELECT * FROM Codes WHERE codes=?", [req.query.grid], (err,data) =>{
+                    if (err){
+                        console.log("Error accessing the tables");
+                    }else{
+                        code = "c" + data[j]["code"];
+                        reports[code] = data[j]["incident_type"];
+                    }
+                   // res.write(JSON.stringify(reports, null, ' '));
+                });
+
+            }else if (req.query.hasOwnProperty('id')){
+                console.log(req.query.id);
+                db.all("SELECT * FROM Codes WHERE codes=?", [req.query.id], (err,data) =>{
+                    if (err){
+                        console.log("Error accessing the tables");
+                    }else{
+                        code = "c" + data[j]["code"];
+                        reports[code] = data[j]["incident_type"];
+                    }
+                   // res.write(JSON.stringify(reports, null, ' '));
+                });
+
+            }else if(req.query.hasOwnProperty('limit')){
+                var thelimit = req.query.limit;
+                for (let i = 0; i<thelimit; i++){
+                    console.log(req.query.code);
+                db.all("SELECT * FROM Codes ", (err,data) =>{
+                    if (err){
+                        console.log("Error accessing the tables");
+                    }else{
+                        
+                    }
+                    res.write(js2xmlparser.parse("Incidents", reports));
+                });
+
+                }
+                
+
+            } else{
             //res.writeHead(200,{'Content-Type':'text/html'});
-           res.write(JSON.stringify(reports, null, 4));
+            res.write(js2xmlparser.parse("Incidents", reports));
            res.end();
             }
            
