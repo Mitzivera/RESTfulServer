@@ -322,7 +322,7 @@ app.get('/incidents',(req, res) => {
                 
                 for (let j = 0; j<arrayofGrids.length; j++){
                     for(let i=0; i< data.length; i++)
-                    {
+                    { 
                         
                         if(Number(arrayofGrids[j]) === Number(data[i]["police_grid"]))
                         {
