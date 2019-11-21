@@ -224,18 +224,18 @@ console.log(req.query);
                         
                         if(commaStartDate == date)
                         {
-                            loc=i;
+                            loc++;
                         }
                     
                 }
-                    var endPoint = 0;
-                    if(loc-endPoint > 10000)
+                    var startPoint = 0;
+                    if(loc-startPoint > 10000)
                     {
-                        endPoint = loc-10000;
+                        startPoint = loc-10000;
                     }
                 
                     console.log('start only ' + loc);
-                    for (let i = endPoint; i <= loc; i++)
+                    for (let i = endPoint; i < loc + 1; i++)
                     {
                             let innerObj = {};
                             case_number = "I" + data[i]["case_number"];
