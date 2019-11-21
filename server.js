@@ -241,28 +241,21 @@ app.get('/incidents',(req, res) => {
             else if (req.query.hasOwnProperty('end_date')){
                 var commaEndDate = req.query.end_date;
                 let pos = commaEndDate.indexOf(",");
-                if(pos < 0)
-                {
-                    arrayOfEndDates = [commaEndDate];
-                }
-                else
-                {
-                    arrayOfEndDates = commaEndDate.split(",");
-                }
+               
                let loc = 0;
                 
-                for (let j = 0; j<arrayOfEndDates.length; j++){
                     for(let i=0; i< data.length; i++)
                     {
                         let hold = data[i]["date_time"];
                         let pos = hold.indexOf("T");
                         date = hold.substring(0,pos);
-                        if((arrayOfEndDates[j]) === (data[i]["date"]))
+                        if(commaEndDate === (data[i]["date"]))
                         {
                             loc=i;
+                            break;
                         }
                     }
-                }
+                
                     for (let i = loc; i<data.length; i++)
                     {
                             let innerObj = {};
