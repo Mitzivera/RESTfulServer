@@ -228,8 +228,14 @@ console.log(req.query);
                         }
                     
                 }
+                    var endPoint = 0;
+                    if(loc-endPoint > 10000)
+                    {
+                        endPoint = loc-10000;
+                    }
+                
                     console.log('start only ' + loc);
-                    for (let i = 0; i <= loc; i++)
+                    for (let i = 10000; i <= loc; i++)
                     {
                             let innerObj = {};
                             case_number = "I" + data[i]["case_number"];
@@ -263,8 +269,14 @@ console.log(req.query);
                             break;
                         }
                     }
-                
-                    for (let i = loc; i<data.length; i++)
+                    
+                    var endPoint = data.length;
+                    if(endPoint-loc > 10000)
+                    {
+                        endPoint = loc+10000
+                    }
+                    
+                    for (let i = loc; i<endPoint; i++)
                     {
                             let innerObj = {};
                             case_number = "I" + data[i]["case_number"];
