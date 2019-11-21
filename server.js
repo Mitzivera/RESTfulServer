@@ -164,51 +164,33 @@ app.get('/incidents',(req, res) => {
            {
             var commaStartDate = req.query.start_date;
             var commaEndDate = req.query.end_date;
-            let pos = commaStartDate.indexOf(",");
-                if(pos < 0)
-                {
-                    arrayOfStartDates = [commaStartDate];
-                }
-                else
-                {
-                    arrayOfStartDates = commaStartDate.split(",");
-                }
-                pos = commaEndDate.indexOf(",");
-                if(pos < 0)
-                {
-                    arrayOfEndDates = [commaEndDate];
-                }
-                else
-                {
-                    arrayOfEndDates = commaEndDate.split(",");
-                }
                let loc = 0;
-               for (let j = 0; j<arrayOfStartDates.length; j++){
+              
                 for(let i=0; i< data.length; i++)
                 {
                     let hold = data[i]["date_time"];
                     let pos = hold.indexOf("T");
                     date = hold.substring(0,pos);
-                    if((arrayOfStartDates[j]) === (data[i]["date"]))
+                    if(commaStartDate === (data[i]["date"]))
                     {
                         loc=i;
                     }
                 }
-            }
-            let locEnd = 0;
-            for (let j = 0; j<arrayOfEndDates.length; j++){
+                let locEnd = 0;
+           
                 for(let i=0; i< data.length; i++)
                 {
                     let hold = data[i]["date_time"];
                     let pos = hold.indexOf("T");
                     date = hold.substring(0,pos);
-                    if((arrayOfEndDates[j]) === (data[i]["date"]))
+                    if(commaEndDate === (data[i]["date"]))
                     {
                         locEnd=i;
+                        break;
                     }
                 }
-            }
-            for (let i = locEnd; i<loc; i++)
+                
+            for (let i = locEnd; i<=loc; i++)
                     {
                             let innerObj = {};
                             case_number = "I" + data[i]["case_number"];
@@ -226,30 +208,22 @@ app.get('/incidents',(req, res) => {
            }
             else if(req.query.hasOwnProperty('start_date')){
                 var commaStartDate = req.query.start_date;
-                let pos = commaStartDate.indexOf(",");
-                if(pos < 0)
-                {
-                    arrayOfStartDates = [commaStartDate];
-                }
-                else
-                {
-                    arrayOfStartDates = commaStartDate.split(",");
-                }
+               
                let loc = 0;
                 
-                for (let j = 0; j<arrayOfStartDates.length; j++){
+              
                     for(let i=0; i< data.length; i++)
                     {
                         let hold = data[i]["date_time"];
                         let pos = hold.indexOf("T");
                         date = hold.substring(0,pos);
-                        if((arrayOfStartDates[j]) === (data[i]["date"]))
+                        if(commaStartDate === (data[i]["date"]))
                         {
                             loc=i;
                         }
-                    }
+                    
                 }
-                    for (let i = 0; i>loc; i++)
+                    for (let i = 0; i <= loc; i++)
                     {
                             let innerObj = {};
                             case_number = "I" + data[i]["case_number"];
