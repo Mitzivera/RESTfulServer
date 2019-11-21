@@ -153,26 +153,28 @@ app.get('/incidents',(req, res) => {
     var arrayofNeighborhood;
     var arrayofCodes;
     var arrayofGrids;
-    var arrayOfStartDates;
-    var arrayOfEndDates;
-
+    var hold;
+    var pos;
+console.log(req.query);
     db.all("SELECT * FROM Incidents ORDER BY date_time DESC", (err,data) => {
        if(err){
            console.log("Error accessing the tables");
        }else {
-           if(req.query.hasOwnProperty('end_date') && req.query.hasOwnProperty('start_date'))
+           if( req.query.hasOwnProperty('start_date') && req.query.hasOwnProperty('end_date'))
            {
+               console.log("inhere");
             var commaStartDate = req.query.start_date;
             var commaEndDate = req.query.end_date;
                let loc = 0;
               
                 for(let i=0; i< data.length; i++)
                 {
-                    let hold = data[i]["date_time"];
-                    let pos = hold.indexOf("T");
+                     hold = data[i]["date_time"];
+                     pos = hold.indexOf("T");
                     date = hold.substring(0,pos);
-                    if(commaStartDate === (data[i]["date"]))
+                    if(commaStartDate === date)
                     {
+                        console.log(date);
                         loc=i;
                     }
                 }
@@ -180,10 +182,10 @@ app.get('/incidents',(req, res) => {
            
                 for(let i=0; i< data.length; i++)
                 {
-                    let hold = data[i]["date_time"];
-                    let pos = hold.indexOf("T");
+                   hold = data[i]["date_time"];
+                    pos = hold.indexOf("T");
                     date = hold.substring(0,pos);
-                    if(commaEndDate === (data[i]["date"]))
+                    if(commaEndDate === date)
                     {
                         locEnd=i;
                         break;
@@ -194,6 +196,8 @@ app.get('/incidents',(req, res) => {
                     {
                             let innerObj = {};
                             case_number = "I" + data[i]["case_number"];
+                            hold = data[i]["date_time"];
+                            pos = hold.indexOf("T");
                             innerObj["date"] = hold.substring(0,pos);
                             innerObj["time"] = hold.substring(pos+1, hold.length);
                             innerObj["code"] = data[i]["code"];
@@ -207,28 +211,30 @@ app.get('/incidents',(req, res) => {
 
            }
             else if(req.query.hasOwnProperty('start_date')){
+                //console.log("Entered ");
                 var commaStartDate = req.query.start_date;
-               
                let loc = 0;
-                
+               
               
                     for(let i=0; i< data.length; i++)
                     {
-                        let hold = data[i]["date_time"];
-                        let pos = hold.indexOf("T");
+                         hold = data[i]["date_time"];
+                        pos = hold.indexOf("T");
                         date = hold.substring(0,pos);
-                        if(commaStartDate === (data[i]["date"]))
+                        
+                        if(commaStartDate == date)
                         {
                             loc=i;
                         }
                     
                 }
+                    console.log('start only ' + loc);
                     for (let i = 0; i <= loc; i++)
                     {
                             let innerObj = {};
                             case_number = "I" + data[i]["case_number"];
-                            let hold = data[i]["date_time"];
-                            let pos = hold.indexOf("T");
+                            hold = data[i]["date_time"];
+                            pos = hold.indexOf("T");
                             innerObj["date"] = hold.substring(0,pos);
                             innerObj["time"] = hold.substring(pos+1, hold.length);
                             innerObj["code"] = data[i]["code"];
@@ -242,16 +248,16 @@ app.get('/incidents',(req, res) => {
                 }
             else if (req.query.hasOwnProperty('end_date')){
                 var commaEndDate = req.query.end_date;
-                let pos = commaEndDate.indexOf(",");
+                var pos = commaEndDate.indexOf(",");
                
                let loc = 0;
                 
                     for(let i=0; i< data.length; i++)
                     {
-                        let hold = data[i]["date_time"];
-                        let pos = hold.indexOf("T");
+                         hold = data[i]["date_time"];
+                       pos = hold.indexOf("T");
                         date = hold.substring(0,pos);
-                        if(commaEndDate === (data[i]["date"]))
+                        if(commaEndDate === date)
                         {
                             loc=i;
                             break;
@@ -262,6 +268,8 @@ app.get('/incidents',(req, res) => {
                     {
                             let innerObj = {};
                             case_number = "I" + data[i]["case_number"];
+                            hold = data[i]["date_time"];
+                            pos = hold.indexOf("T");
                             innerObj["date"] = hold.substring(0,pos);
                             innerObj["time"] = hold.substring(pos+1, hold.length);
                             innerObj["code"] = data[i]["code"];
@@ -426,7 +434,6 @@ app.get('/incidents',(req, res) => {
                 //res.end();
             }
             else{
-            //res.writeHead(200,{'Content-Type':'text/html'});
             res.write(JSON.stringify(reports, null, 4));
             }
             res.end();
